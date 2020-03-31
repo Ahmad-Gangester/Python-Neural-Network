@@ -1,3 +1,6 @@
+if(__name__ == "__main__"):
+    exit()
+
 from .Neuron import Neuron
 import math
 #Network Class
@@ -5,8 +8,8 @@ class Network:
 
     #region Variables
     __Layers = []
-    __Error=None
-    __AvgError=None
+    __Error=0.0
+    __AvgError=0.0
     __numberToAvg=100
     #endregion
 
@@ -17,7 +20,6 @@ class Network:
             self.__Layers.append([])
             numOutputs = 0 if layerNum == len(topology)-1 else topology[layerNum+1]
             for neuronNum in range(topology[layerNum]):
-                print(f"Neuron: {neuronNum} in Layer: {layerNum} was born.")
                 self.__Layers[-1].append(Neuron(numOutputs,neuronNum))
     #endregion
 
@@ -34,9 +36,6 @@ class Network:
     def backPropagation(self,targetValues):
         self.__Error=0.0
         outputLayer = self.__Layers[-1]
-        # for i in range(len(outputLayer)):
-        #     delta=outputLayer[i].outputValue -targetValues[i]
-        #     self.__Error+=delta**2
         for(neuron,target) in zip(outputLayer,targetValues):
             delta=neuron.outputValue-target
             self.__Error+=delta**2
@@ -44,20 +43,24 @@ class Network:
         self.__Error=math.sqrt(self.__Error)
         self.__AvgError=(self.__AvgError * self.__numberToAvg + self.__Error)/(self.__numberToAvg + 1.0)
 
-        for(neuron,target) in zip(outputLayer,targetValues):
-            neuron.outputGradient(target)
+        for (i,_),target in zip(enumerate(outputLayer),targetValues):
+            outputLayer[i].outputGradient(target)
 
         for layerNum in range(len(self.__Layers)-2,-1,-1):
             hiddenLayer=self.__Layers[layerNum]
             nextLayer=self.__Layers[layerNum+1]
-            for neuron in hiddenLayer:
-                neuron.hiddenGradient(nextLayer)
-        for layerNum,l in reversed(list(enumerate(self.__Layers))):
-            layer=l
+            for i,_ in enumerate(hiddenLayer):
+                hiddenLayer[i].hiddenGradient(nextLayer)
+        for layerNum,_ in reversed(list(enumerate(self.__Layers))):
+            if(layerNum==0):
+                break
+            layer=self.__Layers[layerNum]
             perviousLayer=self.__Layers[layerNum-1]
-            for neuron in layer:
-                neuron.updateWeights(perviousLayer)
+            for neuronNum,_ in enumerate(layer):
+                layer[neuronNum].updateWeights(perviousLayer)
 
+    def getResult(self):
+        return self.__Layers[-1][0].outputValue
     #endregion
 
     #region Private Functions

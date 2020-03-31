@@ -1,11 +1,14 @@
+if(__name__ == "__main__"):
+    exit()
+
 from dataclasses import dataclass
 import random
 import math
 
 @dataclass
 class Connection:
-    Weight = None
-    DeltaWeight =None
+    Weight = 0.0
+    DeltaWeight =0.0
 
 
 
@@ -15,9 +18,9 @@ class Neuron:
 
     #region Variables
     __outputWeights = []
-    __outputValue =0
-    __bias=1
-    __Gradient = 0
+    __outputValue =0.0
+    __bias=1.0
+    __Gradient = 0.0
     __traningRate = 0.20
     __Momentum = 0.001
     #endregion
@@ -28,8 +31,7 @@ class Neuron:
         for i in range(numberOfOutputs):
             self.__outputWeights.append(Connection())
             self.__outputWeights[i].Weight=self.__randomWight()
-            print(f"Connection {i} in Neuron {Index} was created.")
-    #endregion
+            #endregion
 
     #region Private Functions
 
@@ -51,8 +53,8 @@ class Neuron:
     @staticmethod
     def __SumDOW(nextLayer):
         sum=0.0
-        for n in nextLayer:
-            sum+=n.__outputWeights.Weight * n.__Gradient
+        for i,n in enumerate(nextLayer):
+            sum+=n.__outputWeights[i].Weight * n.__Gradient
         return sum
 
     #endregion
@@ -74,11 +76,11 @@ class Neuron:
         self.__Gradient=dow*self.__activationFunctionDir(self.__outputValue)
 
     def updateWeights(self,perviousLayer):
-        for neuron in perviousLayer:
+        for n,neuron in enumerate(perviousLayer):
             oldDelta=neuron.__outputWeights[self.__Index].DeltaWeight
             newDelta= neuron.outputValue * self.__Gradient * self.__traningRate + self.__Momentum * oldDelta
-            neuron.__outputWeights[self.__Index].DeltaWeight=newDelta
-            neuron.__outputWeights[self.__Index].Weight+=newDelta
+            perviousLayer[n].__outputWeights[self.__Index].DeltaWeight=newDelta
+            perviousLayer[n].__outputWeights[self.__Index].Weight+=newDelta
 
     #endregion
 
@@ -88,4 +90,7 @@ class Neuron:
     def getOutputValue(self):
         return self.__outputValue
     outputValue=property(getOutputValue,setOutputValue)
+    @property
+    def Gradient(self):
+        return self.__Gradient
     #endregion
