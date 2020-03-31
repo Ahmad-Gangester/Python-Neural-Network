@@ -6,21 +6,25 @@ import math
 #Network Class
 class Network:
 
-    #region Variables
-    __Layers = []
-    __Error=0.0
-    __AvgError=0.0
+    #region Class Variables
     __numberToAvg=100
     #endregion
 
     #region Constructor
     def __init__(self,topology):
+        self.__Layers=[]
+        self.__Error=0.0
+        self.__AvgError=0.0
         numLayers=len(topology)
         for layerNum in range(numLayers):
+            # print(f"Layer {layerNum} =>",end=" ")
             self.__Layers.append([])
             numOutputs = 0 if layerNum == len(topology)-1 else topology[layerNum+1]
             for neuronNum in range(topology[layerNum]):
-                self.__Layers[-1].append(Neuron(numOutputs,neuronNum))
+                # print(f"Neuron {neuronNum} =>")
+                x=Neuron(numOutputs,neuronNum)
+                self.__Layers[-1].append(x)
+        # print("\n\n")
     #endregion
 
     #region Public Functions
@@ -28,10 +32,14 @@ class Network:
     def feedForward(self,inputValues):
         for i in range(len(inputValues)):
             self.__Layers[0][i].outputValue=inputValues[i]
+            # print(f"Layer 0 => Neuron {i} => output={self.__Layers[0][i].outputValue}")
         for i in range(1,len(self.__Layers)):
+            # print(f"Layer {i} =>")
             perviousLayer=self.__Layers[i-1]
             for j in range(len(self.__Layers[i])):
                 self.__Layers[i][j].feedForward(perviousLayer)
+                # print(f"Neuron {j} => output = {self.__Layers[i][j].outputValue}")
+            # print("\n")
 
     def backPropagation(self,targetValues):
         self.__Error=0.0
@@ -45,19 +53,23 @@ class Network:
 
         for (i,_),target in zip(enumerate(outputLayer),targetValues):
             outputLayer[i].outputGradient(target)
+            # print(f"Layer 2 => Neuron {i} => Gradient={self.__Layers[-1][i].Gradient}")
 
-        for layerNum in range(len(self.__Layers)-2,-1,-1):
+        for layerNum in range(len(self.__Layers)-2,0,-1):
             hiddenLayer=self.__Layers[layerNum]
             nextLayer=self.__Layers[layerNum+1]
+            # print(f"Layer {layerNum} =>")
             for i,_ in enumerate(hiddenLayer):
                 hiddenLayer[i].hiddenGradient(nextLayer)
+                # print(f"Neuron {i} => Gradient = {self.__Layers[layerNum][i].Gradient}")
+            # print("\n")
         for layerNum,_ in reversed(list(enumerate(self.__Layers))):
             if(layerNum==0):
                 break
-            layer=self.__Layers[layerNum]
-            perviousLayer=self.__Layers[layerNum-1]
-            for neuronNum,_ in enumerate(layer):
-                layer[neuronNum].updateWeights(perviousLayer)
+            # layer=self.__Layers[layerNum]
+            # perviousLayer=self.__Layers[layerNum-1]
+            for neuronNum,_ in enumerate(self.__Layers[layerNum]):
+                self.__Layers[layerNum][neuronNum].updateWeights(self.__Layers[layerNum-1])
 
     def getResult(self):
         return self.__Layers[-1][0].outputValue

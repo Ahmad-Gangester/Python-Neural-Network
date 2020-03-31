@@ -16,21 +16,26 @@ class Connection:
 
 class Neuron:
 
-    #region Variables
-    __outputWeights = []
-    __outputValue =0.0
+    #region Class Variables
     __bias=1.0
-    __Gradient = 0.0
     __traningRate = 0.20
     __Momentum = 0.001
     #endregion
 
     #region Constructor
     def __init__(self,numberOfOutputs,Index):
+        self.__outputValue=0.0
+        self.__outputWeights=[]
+        self.__Gradient = 0.0
         self.__Index=Index
+
         for i in range(numberOfOutputs):
-            self.__outputWeights.append(Connection())
+            # print(f"Connection {i} =>",end=" ")
+            c=Connection()
+            self.__outputWeights.append(c)
             self.__outputWeights[i].Weight=self.__randomWight()
+            # print(f"Weight = {self.__outputWeights[i].Weight}")
+        # print("\n")
             #endregion
 
     #region Private Functions
@@ -50,11 +55,10 @@ class Neuron:
     def __getOutputWeightOf(self,i):
         return self.__outputWeights[i].Weight
 
-    @staticmethod
-    def __SumDOW(nextLayer):
+    def __SumDOW(self,nextLayer):
         sum=0.0
         for i,n in enumerate(nextLayer):
-            sum+=n.__outputWeights[i].Weight * n.__Gradient
+            sum+=self.__outputWeights[i].Weight * n.__Gradient
         return sum
 
     #endregion
@@ -68,8 +72,10 @@ class Neuron:
         self.outputValue=self.__activationFunction(sum)
 
     def outputGradient(self,targetValue):
-        Error=targetValue-self.outputValue
+        Error=targetValue - self.__outputValue
         self.__Gradient=Error*self.__activationFunctionDir(self.__outputValue)
+        # print(f"Info => targetValue={targetValue} output={self.__outputValue}")
+        # print(f"Error={Error} real_Gradient={self.__Gradient} calc ={(Error)*self.__activationFunctionDir(self.__outputValue)}")
 
     def hiddenGradient(self,nextLayer):
         dow=self.__SumDOW(nextLayer)
@@ -93,4 +99,7 @@ class Neuron:
     @property
     def Gradient(self):
         return self.__Gradient
+    @property
+    def outputWeights(self):
+        return self.__outputWeights
     #endregion
