@@ -1,2 +1,2 @@
-# Pythone-Neural-Network
-Xor with Neural-Network and Back-Propagation algorithm 
+# Python-Neural-Network
+Xor with Neural-Network and Back-Propagation algorithm
