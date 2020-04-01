@@ -72,7 +72,10 @@ class Network:
                 self.__Layers[layerNum][neuronNum].updateWeights(self.__Layers[layerNum-1])
 
     def getResult(self):
-        return self.__Layers[-1][0].outputValue
+        Results=[]
+        for r in self.__Layers[-1]:
+            Results.append(r.outputValue)
+        return Results
     #endregion
 
     #region Private Functions
